@@ -53,22 +53,29 @@ const ThemeView = () => {
   const closeModalHandler = () => setShowModal(false);
 
   useEffect(() => {
-    const address_key = process.env.REACT_APP_ADDRESS_API_KEY;
-    const url = `/req/data?key=${address_key}&domain=http://localhost:3000&service=data&version=2.0&request=getfeature&format=json&size=1000&page=6&geometry=false&attribute=true&crs=EPSG:3857&geomfilter=BOX(13663271.680031825,3894007.9689600193,14817776.555251127,4688953.0631258525)&data=LT_C_ADEMD_INFO`;
-
     const fetchData = async () => {
-      try {
-        const response = await axios.get("/api" + url);
-        const data = response.data.response.result.featureCollection.features;
-        setAddress(data);
-      } catch (e) {
-        console.log(e);
+      const address_key = process.env.REACT_APP_ADDRESS_API_KEY;
+      const base_url = `/req/data?key=${address_key}&domain=http://localhost:3000&service=data&version=2.0&request=getfeature&format=json&size=1000&geometry=false&attribute=true&crs=EPSG:3857&geomfilter=BOX(13663271.680031825,3894007.9689600193,14817776.555251127,4688953.0631258525)&data=LT_C_ADEMD_INFO`;
+
+      let allData = [];
+
+      for (let i = 1; i <= 6; i++) {
+        const url = `${base_url}&page=${i}`;
+
+        try {
+          const response = await axios.get("/api" + url);
+          const data = response.data.response.result.featureCollection.features;
+          allData = [...allData, ...data];
+        } catch (e) {
+          console.log(e);
+        }
       }
+
+      setAddress(allData);
     };
 
     fetchData();
   }, []);
-  console.log(address);
 
   return (
     <>

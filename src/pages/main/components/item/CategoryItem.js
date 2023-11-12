@@ -31,7 +31,7 @@ const CategoryItem = () => {
       <CategoryInfo>
         <div>#카테고리</div>
         <div>
-          <span>서울 강남구 역삼동</span> 추천 맛집
+          <span>서울</span> 추천 맛집
         </div>
         <Button>자세히보기</Button>
       </CategoryInfo>
