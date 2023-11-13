@@ -20,7 +20,7 @@ export const ReviewInfo = styled.div`
 
   p {
     font-size: 0.9em;
-    color: #444444;
+    color: #eeeeee;
   }
 `;
 
