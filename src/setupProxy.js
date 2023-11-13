@@ -11,4 +11,15 @@ module.exports = function (app) {
       },
     })
   );
+
+  app.use(
+    "/n_api",
+    proxy.createProxyMiddleware({
+      target: "https://openapi.naver.com",
+      changeOrigin: true,
+      pathRewrite: {
+        "^/n_api": "",
+      },
+    })
+  );
 };

@@ -45,6 +45,7 @@ export const StyleButton = styled.div`
 `;
 
 const ThemeView = () => {
+  const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState("");
   const [showModal, setShowModal] = useState(false);
 
@@ -63,9 +64,12 @@ const ThemeView = () => {
         const url = `${base_url}&page=${i}`;
 
         try {
+          setLoading(true); // 로딩 상태
           const response = await axios.get("/api" + url);
           const data = response.data.response.result.featureCollection.features;
           allData = [...allData, ...data];
+
+          setLoading(false);
         } catch (e) {
           console.log(e);
         }
@@ -81,6 +85,7 @@ const ThemeView = () => {
     <>
       {showModal && (
         <Modal
+          loading={loading}
           address={address}
           show={showModal}
           onCancel={closeModalHandler}

@@ -2,7 +2,6 @@ import ReactDOM from "react-dom";
 import Backdrop from "./Backdrop";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import CategoryItem from "../../../pages/main/components/item/CategoryItem";
 
 const LocationBox = styled.div`
   width: 600px;
@@ -31,46 +30,56 @@ const ModalOverlay = (props) => {
   const [adrSID, setAdrSID] = useState([]);
   const [adrSIG, setAdrSIG] = useState([]);
   const [adrEMD, setAdrEMD] = useState([]);
+  const [sid, setSid] = useState("");
+  const [sig, setSig] = useState("");
+  const [emd, setEmd] = useState("");
 
-  const address = props.address;
+  const { loading, address, onCancel } = props;
 
   useEffect(() => {
-    const full_adr = address.map((data) => data.properties.full_nm.split(" "));
-    setAdrSID(full_adr.map((item) => item[0]));
-  }, []);
+    // address가 배열인지 확인 후 map을 호출.
+    if (address) {
+      const full_adr = address.map((data) =>
+        data.properties.full_nm.split(" ")
+      );
+      setAdrSID(full_adr.map((item) => item[0]));
+    }
+  }, [address]);
 
+  // 중복값 제거, 새로운 배열 반환
   const removeDuplicates = (arr) => {
     return Array.from(new Set(arr));
   };
 
   const SID_DATA = removeDuplicates(adrSID);
 
-  const selectedDistricts = (selectedADSIDO, index) => {
+  // 조건부 렌더링 함수
+  const selectedDistricts = (selectedDistrict, index) => {
     const districts = address
-      .filter((data) => data.properties.full_nm.match(selectedADSIDO))
+      .filter((data) => data.properties.full_nm.match(selectedDistrict))
       .map((data) => data.properties.full_nm.split(" ")[index]);
 
     return removeDuplicates(districts);
   };
 
-  // -------------------------------------
-  const handleADSIDOClick = (selectedADSIDO, index) => {
-    const districts = selectedDistricts(selectedADSIDO, index);
+  // 광역시(시군구) 클릭 후에 조건부 렌더링 변수 넘기기
+  const handleDistrictClick = (
+    selectedDistrict,
+    index,
+    setDistrict,
+    resetDistrict
+  ) => {
+    const districts = selectedDistricts(selectedDistrict, index);
 
-    console.log("광역시 클릭&시군구 :", districts);
-
-    setAdrSIG(districts);
-    setAdrEMD([]);
+    setDistrict(districts);
+    resetDistrict && resetDistrict([]);
   };
 
-  // -------------------------------------
-
-  const handleADSIGGClick = (selectedADSIG, index) => {
-    const districts = selectedDistricts(selectedADSIG, index);
-
-    console.log("시군구 클릭&읍면동 :", districts);
-
-    setAdrEMD(districts);
+  // 클릭한 주소 텍스트 담기
+  const handleAdrClick = (e, setAdrSelect, setAdrSig, setAdrEmd) => {
+    setAdrSelect(e.target.textContent);
+    setAdrSig && setAdrSig("");
+    setAdrEmd && setAdrEmd("");
   };
 
   const content = (
@@ -81,7 +90,13 @@ const ModalOverlay = (props) => {
           <h4>광역시도</h4>
           <DistrictItem>
             {SID_DATA.map((data) => (
-              <li key={data} onClick={() => handleADSIDOClick(data, 1)}>
+              <li
+                key={data}
+                onClick={(e) => {
+                  handleDistrictClick(data, 1, setAdrSIG, setAdrEMD);
+                  handleAdrClick(e, setSid, setSig, setEmd);
+                }}
+              >
                 {data}
               </li>
             ))}
@@ -91,7 +106,13 @@ const ModalOverlay = (props) => {
           <h4>시군구</h4>
           <DistrictItem>
             {adrSIG.map((data) => (
-              <li key={data} onClick={() => handleADSIGGClick(data, 2)}>
+              <li
+                key={data}
+                onClick={(e) => {
+                  handleDistrictClick(data, 2, setAdrEMD);
+                  handleAdrClick(e, setSig);
+                }}
+              >
                 {data}
               </li>
             ))}
@@ -101,16 +122,26 @@ const ModalOverlay = (props) => {
           <h4>읍면동</h4>
           <DistrictItem>
             {adrEMD.map((data) => (
-              <li key={data}>{data}</li>
+              <li
+                key={data}
+                onClick={(e) => {
+                  handleAdrClick(e, setEmd);
+                }}
+              >
+                {data}
+              </li>
             ))}
           </DistrictItem>
         </DistrictList>
       </LocationMain>
+      <div>{loading && <p>주소지를 가져오는 중 입니다!</p>}</div>
       <div>
-        <div>선택한 지역</div>
+        <div>
+          선택한 주소 : {sid} {sig} {emd}
+        </div>
       </div>
       <div>
-        <button onClick={props.onCancel} className="close-button">
+        <button onClick={onCancel} className="close-button">
           취소
         </button>
         <button>완료</button>
@@ -120,7 +151,6 @@ const ModalOverlay = (props) => {
 
   return (
     <>
-      {/* <CategoryItem adrSIG={adrSIG} adrEMD={adrEMD} /> */}
       {ReactDOM.createPortal(content, document.getElementById("modal-overlay"))}
     </>
   );
