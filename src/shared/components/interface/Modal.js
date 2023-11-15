@@ -34,7 +34,7 @@ const ModalOverlay = (props) => {
 
   const { state, actions } = useContext(LocationContext);
   const { sid, sig, emd } = state;
-  const { setSid, setSig, setEmd } = actions;
+  const { setSid, setSig, setEmd, setAdr } = actions;
 
   const { loading, address, onCancel } = props;
 
@@ -143,10 +143,15 @@ const ModalOverlay = (props) => {
         </div>
       </div>
       <div>
-        <button onClick={onCancel} className="close-button">
-          취소
+        <button onClick={onCancel}>취소</button>
+        <button
+          onClick={() => {
+            onCancel();
+            setAdr([sid, sig, emd]);
+          }}
+        >
+          완료
         </button>
-        <button>완료</button>
       </div>
     </LocationBox>
   );

@@ -1,13 +1,12 @@
 import styled from "styled-components";
 import { Card, Button } from "../../../../shared/components/styles/UIElements";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { useEffect, useState, useContext, useCallback } from "react";
-import { Navigation } from "swiper/modules";
+import { useEffect, useState, useContext } from "react";
 import { LocationContext } from "../../../../shared/components/context/LocationContext";
+import { useInView } from "react-intersection-observer";
+import CategoryItemContent from "./CategoryItemContent";
 
 import dummyData from "../../../../dummyData";
 import axios from "axios";
-import "swiper/css/bundle";
 
 export const CategoryInfo = styled.div`
   display: flex;
@@ -22,100 +21,77 @@ export const CategoryInfo = styled.div`
   }
 `;
 
-export const RestaurantList = styled.div`
-  display: flex;
-  max-width: 700px;
-  align-items: center;
-  padding: 1.5em 3em;
-
-  .imgBox {
-    width: 150px;
-    height: 150px;
-    border-radius: 7px;
-
-    img {
-      width: 100%;
-      height:100%;
-      object-fit: cover;
-      border-radius: 7px;
-    }
-  }
-
-  .swiper-button-next,
-  .swiper-button-prev {
-    color: white; /* 버튼 색상 설정 */
-    font-size: 13px; /* 버튼 폰트 크기 설정 */
-    background: rgba(0, 0, 0, 0.75); /* 배경색 설정 */
-    border-radius: 100%;
-    width: 40px;
-    height: 40px;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    transition: background-color 0.3s;
-
-    &:hover {
-      background-color: #333333;
-    }
-  }
-
-  .swiper-button-next {
-    right: 10px; /
-  }
-
-  .swiper-button-prev {
-    left: 10px;
-  }
-
-  .swiper-button-prev::after,
-  .swiper-button-next::after {
-    font-size: 1em;
-  }
-`;
-
 const CategoryItem = () => {
   const { state } = useContext(LocationContext);
-  const { sid, sig, emd } = state;
+  const { sid, sig, emd, allAdr } = state;
 
-  const [categoryData, setCategoryData] = useState();
+  const [categoryData, setCategoryData] = useState([]);
+  const [randomImg, setRandomImg] = useState(() => {});
+  // const [alladrlend, lendering] = useState(false);
+  const [page, setPage] = useState(1);
+  const [ref, inView] = useInView();
 
-  // 랜덤 이미지 경로
-  const getRandomImagePath = () => {
-    const randomImageNumber = Math.floor(Math.random() * 30) + 1;
-    return `/${randomImageNumber}.jpeg`;
+  const client_id = process.env.REACT_APP_NAVER_CLIENT_ID;
+  const client_secret = process.env.REACT_APP_NAVER_CLIENT_SECRET;
+
+  const fetchData = async (startIndex, endIndex) => {
+    try {
+      const results = await Promise.all(
+        dummyData.slice(startIndex, endIndex).map(async (item) => {
+          const { category, id, icon } = item;
+          const query = `${sid} ${sig} ${emd} ${category} 맛집`;
+          const url = `/v1/search/local.json?display=5&start=1&sort=random&query=${query}`;
+
+          const response = await axios.get("/n_api" + url, {
+            headers: {
+              "X-Naver-Client-Id": client_id,
+              "X-Naver-Client-Secret": client_secret,
+            },
+          });
+          console.log("주소 정보!!! : ", query);
+          return { category, id, icon, items: response.data.items };
+        })
+      );
+
+      setCategoryData((prevData) => [...prevData, ...results]);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const client_id = process.env.REACT_APP_NAVER_CLIENT_ID;
-      const client_secret = process.env.REACT_APP_NAVER_CLIENT_SECRET;
+    // allAdr이 변경되면 페이지를 다시 1로 초기화하고 새로운 데이터를 요청
+    if (allAdr) {
+      setPage(1);
+      fetchData(0, 3); // 처음 3개의 데이터를 요청
+    }
 
-      try {
-        const results = await Promise.all(
-          dummyData.map(async (item) => {
-            const { category, id, icon } = item;
-            const query = `${sid} ${sig} ${emd} ${category} 맛집`;
-            const url = `/v1/search/local.json?display=5&start=1&sort=random&query=${query}`;
-
-            const response = await axios.get("/n_api" + url, {
-              headers: {
-                "X-Naver-Client-Id": client_id,
-                "X-Naver-Client-Secret": client_secret,
-              },
-            });
-
-            return { category, id, icon, items: response.data.items };
-          })
-        );
-        setCategoryData(results);
-      } catch (e) {
-        console.log(e);
-      }
+    const getRandomImagePath = () => {
+      return Math.floor(Math.random() * 30) + 1;
     };
 
-    fetchData();
-  }, [sid, sig, emd]);
+    setRandomImg(getRandomImagePath);
+  }, [allAdr]);
+
+  useEffect(() => {
+    // inView가 true 일때만 실행한다.
+    if (inView) {
+      console.log(inView, "무한 스크롤 요청 🎃"); // 실행할 함수
+      const startIndex = (page - 1) * 3;
+      const endIndex = startIndex + 3;
+      fetchData(startIndex, endIndex);
+
+      setPage((prevPage) => prevPage + 1);
+    }
+  }, [inView]);
+
+  // useEffect(() => {
+  //   const getRandomImagePath = () => {
+  //     return Math.floor(Math.random() * 30) + 1;
+  //   };
+
+  //   setRandomImg(getRandomImagePath);
+  // }, [allAdr]);
 
   console.log(categoryData);
 
@@ -123,10 +99,10 @@ const CategoryItem = () => {
     <>
       {categoryData && (
         <>
-          {categoryData.map((categoryItemPromise) => {
+          {categoryData.map((categoryItemPromise, index) => {
             // 각 Promise 객체를 기다립니다.
             return (
-              <Card key={categoryItemPromise.id}>
+              <Card key={index}>
                 <CategoryInfo>
                   <div>
                     {categoryItemPromise.icon} {categoryItemPromise.category}
@@ -139,129 +115,101 @@ const CategoryItem = () => {
                   </div>
                   <Button>자세히보기</Button>
                 </CategoryInfo>
-                <RestaurantList>
-                  <Swiper
-                    modules={[Navigation]}
-                    spaceBetween={50}
-                    slidesPerView={4}
-                    navigation={{
-                      nextEl: ".swiper-button-next",
-                      prevEl: ".swiper-button-prev",
-                    }}
-                  >
-                    {categoryItemPromise.items &&
-                      categoryItemPromise.items.map((item) => (
-                        <SwiperSlide key={item.title}>
-                          <div className="imgBox">
-                            <img src={`/assets${getRandomImagePath()}`} />
-                          </div>
-                          <div>
-                            {item.title.replace(
-                              /[^\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC01-\uD7A3]+/g,
-                              ""
-                            )}
-                          </div>
-                        </SwiperSlide>
-                      ))}
-                    <div className="swiper-button-next"></div>
-                    <div className="swiper-button-prev"></div>
-                  </Swiper>
-                </RestaurantList>
+                <CategoryItemContent
+                  categoryItemPromise={categoryItemPromise}
+                  randomImg={randomImg}
+                />
               </Card>
             );
           })}
+          <div ref={ref}>로딩 중이요~</div>
         </>
       )}
     </>
   );
 };
 
-export default CategoryItem;
-
-// ========================= 수정 전 ================================
+// ----------- 0000 아래는 더미 데이터 10개로 한정한 코드 --------------
 
 // const CategoryItem = () => {
 //   const { state } = useContext(LocationContext);
-//   const { sid, sig, emd } = state;
+//   const { sid, sig, emd, allAdr } = state;
 
-//   const [category, setCategory] = useState("");
+//   const [categoryData, setCategoryData] = useState();
+//   const [randomImg, setRandomImg] = useState(() => {});
+
+//   useEffect(() => {
+//     const getRandomImagePath = () => {
+//       return Math.floor(Math.random() * 30) + 1;
+//     };
+
+//     setRandomImg(getRandomImagePath);
+//   }, [allAdr]);
 
 //   useEffect(() => {
 //     const fetchData = async () => {
 //       const client_id = process.env.REACT_APP_NAVER_CLIENT_ID;
 //       const client_secret = process.env.REACT_APP_NAVER_CLIENT_SECRET;
 
-//       const query = `${sid} ${sig} ${emd} 파스타 맛집`;
-//       const url = `/v1/search/local.json?display=5&start=1&sort=random&query=${query}`;
-
 //       try {
-//         const response = await axios.get("/n_api" + url, {
-//           headers: {
-//             "X-Naver-Client-Id": client_id,
-//             "X-Naver-Client-Secret": client_secret,
-//           },
-//         });
-//         const data = response.data.items;
+//         const results = await Promise.all(
+//           dummyData.map(async (item) => {
+//             const { category, id, icon } = item;
+//             const query = `${sid} ${sig} ${emd} ${category} 맛집`;
+//             const url = `/v1/search/local.json?display=5&start=1&sort=random&query=${query}`;
 
-//         setCategory(data);
+//             const response = await axios.get("/n_api" + url, {
+//               headers: {
+//                 "X-Naver-Client-Id": client_id,
+//                 "X-Naver-Client-Secret": client_secret,
+//               },
+//             });
+
+//             return { category, id, icon, items: response.data.items };
+//           })
+//         );
+//         setCategoryData(results);
 //       } catch (e) {
 //         console.log(e);
 //       }
 //     };
 
 //     fetchData();
-//   }, [sid, sig, emd]);
+//   }, [allAdr]);
 
-//   console.log(category);
+//   console.log(categoryData);
 
 //   return (
 //     <>
-//       {dummyData.map((item) => (
-//         <Card key={item.id}>
-//           <CategoryInfo>
-//             <div>
-//               {item.icon} {item.category}
-//             </div>
-//             <div>
-//               <span>
-//                 {sid} {sig} {emd}
-//               </span>
-//               추천 맛집
-//             </div>
-//             <Button>자세히보기</Button>
-//           </CategoryInfo>
-//           <RestaurantList>
-//             <Swiper
-//               modules={[Navigation]}
-//               spaceBetween={50}
-//               slidesPerView={4}
-//               navigation={{
-//                 nextEl: ".swiper-button-next",
-//                 prevEl: ".swiper-button-prev",
-//               }}
-//             >
-//               {category &&
-//                 category.map((item) => (
-//                   <SwiperSlide key={item.title}>
-//                     <div>
-//                       <img src="/assets/img01.jpg" />
-//                     </div>
-//                     <div>
-//                       {item.title.replace(
-//                         /[^\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC01-\uD7A3]+/g,
-//                         ""
-//                       )}
-//                     </div>
-//                   </SwiperSlide>
-//                 ))}
-//               <div className="swiper-button-next"></div>
-//               <div className="swiper-button-prev"></div>
-//             </Swiper>
-//           </RestaurantList>
-//         </Card>
-//       ))}
+//       {categoryData && (
+//         <>
+//           {categoryData.map((categoryItemPromise) => {
+//             // 각 Promise 객체를 기다립니다.
+//             return (
+//               <Card key={categoryItemPromise.id}>
+//                 <CategoryInfo>
+//                   <div>
+//                     {categoryItemPromise.icon} {categoryItemPromise.category}
+//                   </div>
+//                   <div>
+//                     <span>
+//                       {sid} {sig} {emd}
+//                     </span>
+//                     추천 맛집
+//                   </div>
+//                   <Button>자세히보기</Button>
+//                 </CategoryInfo>
+//                 <CategoryItemContent
+//                   categoryItemPromise={categoryItemPromise}
+//                   randomImg={randomImg}
+//                 />
+//               </Card>
+//             );
+//           })}
+//         </>
+//       )}
 //     </>
 //   );
 // };
 
-// export default CategoryItem;
+export default CategoryItem;

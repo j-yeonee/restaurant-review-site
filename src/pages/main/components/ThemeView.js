@@ -1,6 +1,6 @@
 /* eslint-disable no-const-assign */
 import styled, { css } from "styled-components";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import CategoryItem from "./item/CategoryItem";
 import Modal from "../../../shared/components/interface/Modal";
 import axios from "axios";
