@@ -1,4 +1,3 @@
-import Header from "../../shared/components/layout/Header";
 import Footer from "../../shared/components/layout/Footer";
 import styled from "styled-components";
 import ReviewView from "./components/ReviewView";
@@ -18,7 +17,6 @@ export const MainBox = styled.div`
 const MainPage = () => {
   return (
     <>
-      <Header />
       <Main>
         <div className="container">
           <MainBox>
