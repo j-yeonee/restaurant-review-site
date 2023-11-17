@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useState, useContext, useEffect } from "react";
-import { SearchContext } from "../context/SearchContext";
+import { SearchContext } from "../../context/SearchContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -91,8 +91,6 @@ const Header = () => {
       console.log(e);
     }
   };
-
-
 
   const handleSubmit = (e) => {
     e.preventDefault();

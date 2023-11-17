@@ -1,15 +1,6 @@
-import styled from "styled-components";
+import { useState, useEffect } from "react";
 
-import { useEffect, useState } from "react";
-
-export const MapContainer = styled.div`
-  width: 65%;
-  height: 100vh;
-  background-color: white;
-  border-radius: 7px;
-`;
-
-const Map = ({ detailData }) => {
+const useMap = (geoData, level) => {
   const [map, setMap] = useState();
   const [marker, setMarker] = useState();
   const [positions, setPosition] = useState();
@@ -19,8 +10,10 @@ const Map = ({ detailData }) => {
     const positionsArray = [];
 
     window.kakao.maps.load(() => {
-      detailData &&
-        detailData.items.map((item) => {
+      const items = geoData.items ? geoData.items : [geoData];
+
+      items &&
+        items.map((item) => {
           const { title, mapx, mapy } = item;
 
           // 문자열에서 숫자를 추출하여 소수점을 추가하고 실수로 변환하는 함수
@@ -37,8 +30,6 @@ const Map = ({ detailData }) => {
           const MapY = convertToFloat(mapy, 2, 6); // 예시에서는 2자리 정수, 소수점, 7자리 정수를 추출
           const MapX = convertToFloat(mapx, 3, 6); // 예시에서는 3자리 정수, 소수점, 7자리 정수를 추출
 
-          console.log("타이틀, 경도, 위도", title, mapx, mapy);
-
           const position = {
             title: title,
             latlng: new window.kakao.maps.LatLng(MapY, MapX),
@@ -49,24 +40,28 @@ const Map = ({ detailData }) => {
     });
 
     setPosition(positionsArray);
-  }, [detailData]);
-
+  }, [geoData]);
   console.log(positions);
 
   // 2) 카카오맵 불러오기
   useEffect(() => {
     window.kakao.maps.load(() => {
+      const center =
+        positions && positions.length === 1
+          ? positions[0].latlng
+          : new window.kakao.maps.LatLng(37.27538, 127.05488); // 기본값
+
       const container = document.getElementById("map");
       const options = {
-        center: new window.kakao.maps.LatLng(37.27538, 127.05488),
-        level: 13,
+        center: center,
+        level: level,
       };
 
       const map = new window.kakao.maps.Map(container, options);
 
       setMap(map);
     });
-  }, []);
+  }, [geoData, positions, level]);
 
   // 3) 마커 표시
   useEffect(() => {
@@ -90,12 +85,6 @@ const Map = ({ detailData }) => {
 
     setMarker(markers);
   }, [map, positions]);
-
-  return (
-    <>
-      <MapContainer id="map" />
-    </>
-  );
 };
 
-export default Map;
+export default useMap;

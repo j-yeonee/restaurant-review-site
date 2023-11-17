@@ -1,8 +1,9 @@
 import styled from "styled-components";
+import { getRandomImagePath } from "../../../../shared/util/getRandomImagePath";
 import { Card, Button } from "../../../../shared/components/styles/UIElements";
+import { LocationContext } from "../../../../shared/context/LocationContext";
+import { CategoryContext } from "../../../../shared/context/CategoryContext";
 import { useEffect, useState, useContext } from "react";
-import { LocationContext } from "../../../../shared/components/context/LocationContext";
-import { CategoryContext } from "../../../../shared/components/context/CategoryContext";
 import { useInView } from "react-intersection-observer";
 import { Link } from "react-router-dom";
 import { debounce } from "lodash";
@@ -33,11 +34,7 @@ const CategoryInfo = () => {
   const { categoryData } = categoryContext.state;
   const { setCategoryData } = categoryContext.actions;
 
-  // const { state } = useContext(LocationContext);
-  // const { sid, sig, emd, allAdr } = state;
-
-  // const [categoryData, setCategoryData] = useState([]);
-  const [randomImg, setRandomImg] = useState(() => {});
+  const [randomImg, setRandomImg] = useState();
   const [page, setPage] = useState(1);
   const [ref, inView] = useInView();
 
@@ -78,10 +75,6 @@ const CategoryInfo = () => {
       setCategoryData([]);
       fetchData(0, 3); // 처음 3개의 데이터를 요청
     }
-
-    const getRandomImagePath = () => {
-      return Math.floor(Math.random() * 30) + 1;
-    };
 
     setRandomImg(getRandomImagePath);
   }, [allAdr]);

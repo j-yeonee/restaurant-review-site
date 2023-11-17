@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { GlobalStyles } from "./shared/components/styles/GlobalStyles";
-import { LocationProvider } from "./shared/components/context/LocationContext";
-import { CategoryProvider } from "./shared/components/context/CategoryContext";
-import { SearchProvider } from "./shared/components/context/SearchContext";
+import { LocationProvider } from "./shared/context/LocationContext";
+import { CategoryProvider } from "./shared/context/CategoryContext";
+import { SearchProvider } from "./shared/context/SearchContext";
 import MainPage from "./pages/main/MainPage";
 import SearchPage from "./pages/search/SearchPage";
 import ReviewPage from "./pages/review/ReviewPage";
@@ -20,8 +20,8 @@ const App = () => {
             <Routes>
               <Route path="/" element={<MainPage />} />
               <Route path="/search" element={<SearchPage />} />
-              <Route path="/review" element={<ReviewPage />} />
               <Route path="/list/:id" element={<ListPage />} />
+              <Route path="/review/:id" element={<ReviewPage />} />
             </Routes>
           </BrowserRouter>
         </CategoryProvider>

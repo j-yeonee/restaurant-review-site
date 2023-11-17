@@ -2,7 +2,7 @@ import ReactDOM from "react-dom";
 import Backdrop from "./Backdrop";
 import styled from "styled-components";
 import { useEffect, useState, useContext } from "react";
-import { LocationContext } from "../context/LocationContext";
+import { LocationContext } from "../../context/LocationContext";
 
 const LocationBox = styled.div`
   width: 600px;

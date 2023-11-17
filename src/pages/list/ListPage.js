@@ -1,16 +1,17 @@
 import styled from "styled-components";
+import { getRandomImagePath } from "../../shared/util/getRandomImagePath";
+import { LocationContext } from "../../shared/context/LocationContext";
+import { CategoryContext } from "../../shared/context/CategoryContext";
 import { useParams } from "react-router-dom";
 import { useContext } from "react";
-import { LocationContext } from "../../shared/components/context/LocationContext";
-import { CategoryContext } from "../../shared/components/context/CategoryContext";
-import Map from "./components/Map";
+import ListMap from "./components/ListMap";
 
 export const Section = styled.main`
   background-color: #f5f7f6;
   height: auto;
 `;
 
-export const ListMap = styled.div`
+export const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -30,6 +31,9 @@ export const CategoryInfo = styled.div`
   border-top: 1px solid #eeeeee;
 
   img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
     border-radius: 7px;
   }
 `;
@@ -45,6 +49,8 @@ const ListPage = () => {
   console.log("categoryData:", categoryData);
   console.log("id:", id);
 
+  const randomImagePath = getRandomImagePath();
+
   const detailData = categoryData.find(
     (categoryItemPromise) => categoryItemPromise.id === parseInt(id)
   );
@@ -53,7 +59,7 @@ const ListPage = () => {
   return (
     <Section>
       <div className="container">
-        <ListMap>
+        <Container>
           <Category>
             <h4>
               {sid} {sig} {emd} #{detailData && detailData.category} 맛집
@@ -62,7 +68,7 @@ const ListPage = () => {
               detailData.items.map((data) => (
                 <CategoryInfo key={data.id}>
                   <div>
-                    <img src="http://placehold.it/150X150" />
+                    <img src={`/assets/${randomImagePath}.jpeg`} />
                   </div>
                   <div>
                     <div>
@@ -77,8 +83,8 @@ const ListPage = () => {
                 </CategoryInfo>
               ))}
           </Category>
-          <Map detailData={detailData} />
-        </ListMap>
+          <ListMap geoData={detailData} level={13} />
+        </Container>
       </div>
     </Section>
   );
