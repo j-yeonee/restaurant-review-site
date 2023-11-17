@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useContext } from "react";
-import Map from "./Map";
 import { LocationContext } from "../../shared/components/context/LocationContext";
 import { CategoryContext } from "../../shared/components/context/CategoryContext";
+import Map from "./components/Map";
 
 export const Section = styled.main`
   background-color: #f5f7f6;

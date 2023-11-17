@@ -1,7 +1,7 @@
 import Footer from "../../shared/components/layout/Footer";
 import styled from "styled-components";
-import ReviewView from "./components/ReviewView";
-import ThemeView from "./components/ThemeView";
+import ReviewContainer from "./components/review/ReviewContainer";
+import CategoryContainer from "./components/category/CategoryContainer";
 
 export const Main = styled.main`
   background-color: #f5f7f6;
@@ -20,8 +20,8 @@ const MainPage = () => {
       <Main>
         <div className="container">
           <MainBox>
-            <ThemeView />
-            <ReviewView />
+            <CategoryContainer />
+            <ReviewContainer />
           </MainBox>
         </div>
       </Main>

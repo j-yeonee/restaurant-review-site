@@ -6,11 +6,11 @@ import { CategoryContext } from "../../../../shared/components/context/CategoryC
 import { useInView } from "react-intersection-observer";
 import { Link } from "react-router-dom";
 import { debounce } from "lodash";
-import CategoryItemContent from "./CategoryItemContent";
+import CategoryContent from "./CategoryContent";
 import dummyData from "../../../../dummyData";
 import axios from "axios";
 
-export const CategoryInfo = styled.div`
+export const Category = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -23,7 +23,7 @@ export const CategoryInfo = styled.div`
   }
 `;
 
-const CategoryItem = () => {
+const CategoryInfo = () => {
   // Use the useContext hook for each context separately
   const locationContext = useContext(LocationContext);
   const categoryContext = useContext(CategoryContext);
@@ -113,7 +113,7 @@ const CategoryItem = () => {
             // 각 Promise 객체를 기다립니다.
             return (
               <Card key={index}>
-                <CategoryInfo>
+                <Category>
                   <div>
                     {categoryItemPromise.icon} {categoryItemPromise.category}
                   </div>
@@ -126,8 +126,8 @@ const CategoryItem = () => {
                   <Link to={`/list/${categoryItemPromise.id}`}>
                     <Button>자세히보기</Button>
                   </Link>
-                </CategoryInfo>
-                <CategoryItemContent
+                </Category>
+                <CategoryContent
                   categoryItemPromise={categoryItemPromise}
                   randomImg={randomImg}
                 />
@@ -141,4 +141,4 @@ const CategoryItem = () => {
   );
 };
 
-export default CategoryItem;
+export default CategoryInfo;

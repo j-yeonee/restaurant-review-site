@@ -55,7 +55,7 @@ export const RestaurantList = styled.div`
   }
 `;
 
-const CategoryItemContent = ({ categoryItemPromise, randomImg }) => {
+const CategoryContent = ({ categoryItemPromise, randomImg }) => {
   return (
     <RestaurantList>
       <Swiper
@@ -88,4 +88,4 @@ const CategoryItemContent = ({ categoryItemPromise, randomImg }) => {
   );
 };
 
-export default CategoryItemContent;
+export default CategoryContent;

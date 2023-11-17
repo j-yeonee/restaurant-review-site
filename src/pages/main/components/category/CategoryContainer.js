@@ -1,8 +1,8 @@
 /* eslint-disable no-const-assign */
 import styled, { css } from "styled-components";
 import React, { useState, useEffect } from "react";
-import CategoryItem from "./item/CategoryItem";
-import Modal from "../../../shared/components/interface/Modal";
+import CategoryInfo from "./CategoryInfo";
+import Modal from "../../../../shared/components/interface/Modal";
 import axios from "axios";
 
 export const Section = styled.div`
@@ -44,7 +44,7 @@ export const StyleButton = styled.div`
     `}
 `;
 
-const ThemeView = () => {
+const CategoryContainer = () => {
   const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -96,10 +96,10 @@ const ThemeView = () => {
           <StyleButton onClick={openModalHandler}>지역 설정</StyleButton>
           <StyleButton $inverted>현재 위치</StyleButton>
         </Location>
-        <CategoryItem />
+        <CategoryInfo />
       </Section>
     </>
   );
 };
 
-export default ThemeView;
+export default CategoryContainer;

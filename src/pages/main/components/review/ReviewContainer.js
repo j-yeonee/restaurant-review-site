@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { Card } from "../../../shared/components/styles/UIElements";
-import ReviewItem from "./item/ReivewItem";
+import { Card } from "../../../../shared/components/styles/UIElements";
+import ReviewItem from "./ReivewItem";
 
 export const Section = styled.div`
   width: 35%;
@@ -15,7 +15,7 @@ export const Title = styled.div`
   padding: 1em 0 0;
 `;
 
-const ReviewView = () => {
+const ReviewContainer = () => {
   return (
     <Section>
       <Title>최신 리뷰를 확인하세요</Title>
@@ -26,4 +26,4 @@ const ReviewView = () => {
   );
 };
 
-export default ReviewView;
+export default ReviewContainer;
